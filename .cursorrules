@@ -1,0 +1,17 @@
+# Fashion AI App - Cursor Rules
+
+## Development Pace
+- Never implement more than 2-3 functions or 2-3 classes at a time
+- Wait for review and understanding before proceeding
+- Keep changes small and incremental
+
+## Architecture
+- Backend (`backend/`) handles HTTP, DB, orchestration
+- ML (`ml/`) is pure library code - no DB/HTTP dependencies
+- ML never imports from backend
+- Frontend (`frontend/`) calls backend API
+
+## Code Style
+- Python: Type hints, Pydantic schemas, SQLAlchemy models
+- Frontend: TypeScript, Tailwind CSS, Next.js patterns
+- Write tests for new features

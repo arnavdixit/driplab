@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Virtual environments
+.env
+.venv/
+venv/
+ENV/
+env/
+
+# Data (large files)
+data/runtime/
+data/datasets/
+ml/datasets/
+storage/chroma_db/
+
+# Model artifacts (use Git LFS if versioning)
+model_artifacts/*.pt
+model_artifacts/*.pth
+model_artifacts/clip/
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Temporary files
+tmp/
+temp/
+
