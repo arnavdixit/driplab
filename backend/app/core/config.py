@@ -27,7 +27,10 @@ class Settings(BaseSettings):
         description="List of allowed CORS origins",
     )
 
-    # Database
+    # Database (full URL overrides the parts below)
+    DATABASE_URL_OVERRIDE: Optional[str] = Field(
+        default=None, description="Full database URL. If set, overrides POSTGRES_* parts."
+    )
     POSTGRES_SERVER: str = Field(default="localhost", description="PostgreSQL server")
     POSTGRES_USER: str = Field(default="postgres", description="PostgreSQL user")
     POSTGRES_PASSWORD: str = Field(default="postgres", description="PostgreSQL password")
@@ -37,6 +40,8 @@ class Settings(BaseSettings):
     @property
     def DATABASE_URL(self) -> str:
         """Construct PostgreSQL database URL."""
+        if self.DATABASE_URL_OVERRIDE:
+            return self.DATABASE_URL_OVERRIDE
         return (
             f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
             f"@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

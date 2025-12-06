@@ -16,6 +16,12 @@ A wardrobe management and outfit recommendation app powered by custom ML models 
 
 See `docs/ARCHITECTURE.md` for detailed folder structure rationale.
 
+**Detailed Task Specs:** See `docs/tasks/` for implementation details:
+- `docs/tasks/BACKEND.md` - BE-001 to BE-022
+- `docs/tasks/ML.md` - ML-001 to ML-021
+- `docs/tasks/FRONTEND.md` - FE-001 to FE-014
+- `docs/tasks/INFRA.md` - INF-001 to INF-006
+
 ### Key Features
 - Upload and catalog wardrobe items with automatic tagging
 - Get outfit recommendations based on occasion, weather, preferences
