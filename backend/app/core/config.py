@@ -65,6 +65,18 @@ class Settings(BaseSettings):
         default="data/runtime/processed", description="Directory for processed images"
     )
 
+    # Dev auth fallback
+    ALLOW_DEV_SINGLE_USER: bool = Field(
+        default=False,
+        description=(
+            "Dev-only: when true, create/use a default user if no auth header is provided."
+        ),
+    )
+    DEV_SINGLE_USER_EMAIL: str = Field(
+        default="dev@example.com",
+        description="Email for the dev single-user fallback.",
+    )
+
     # OpenAI (for Phase 4)
     OPENAI_API_KEY: Optional[str] = Field(default=None, description="OpenAI API key")
 

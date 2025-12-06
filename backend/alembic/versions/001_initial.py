@@ -47,7 +47,12 @@ def upgrade() -> None:
         sa.Column("original_image_path", sa.String(length=500), nullable=False),
         sa.Column("processed_image_path", sa.String(length=500), nullable=True),
         sa.Column("thumbnail_path", sa.String(length=500), nullable=True),
-        sa.Column("status", sa.String(length=20), server_default="pending", nullable=False),
+        sa.Column(
+            "status",
+            sa.String(length=20),
+            server_default=sa.text("'pending'"),
+            nullable=False,
+        ),
         sa.Column("error_message", sa.Text(), nullable=True),
         sa.Column("custom_name", sa.String(length=100), nullable=True),
         sa.Column("custom_notes", sa.Text(), nullable=True),
@@ -224,7 +229,7 @@ def upgrade() -> None:
         sa.Column(
             "preferred_fit",
             sa.String(length=20),
-            server_default="regular",
+            server_default=sa.text("'regular'"),
             nullable=False,
         ),
         sa.Column("formality_min", sa.Float(), server_default=sa.text("0.0"), nullable=False),

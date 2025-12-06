@@ -119,6 +119,8 @@ Create endpoint to upload garment images. Saves file to storage, creates databas
 - Create thumbnail (optional in MVP, can skip)
 - Create `garments` database record with `status: "pending"`
 - Return garment ID for frontend to poll status
+- Dev convenience (optional): set `ALLOW_DEV_SINGLE_USER=true` to auto-create/use
+  `DEV_SINGLE_USER_EMAIL` when no `Authorization` header is provided (dev only).
 
 **Acceptance Criteria:**
 - [ ] Can upload JPEG/PNG image
