@@ -648,28 +648,34 @@ class Message(Base):
 
 ## Migration Strategy
 
-### Initial Setup
+### Alembic usage (BE-003)
+- Location: `backend/alembic.ini`, env: `backend/alembic/env.py`, versions: `backend/alembic/versions/`
+- DB URL: set `DATABASE_URL` (or POSTGRES_* envs read by `settings.DATABASE_URL`, e.g. `postgresql://postgres:postgres@localhost:5432/fashion_app`)
+- UUIDs: DB uses `gen_random_uuid()` defaults; enable once per DB with `CREATE EXTENSION IF NOT EXISTS "pgcrypto";`
 
 ```bash
-# Initialize Alembic
-alembic init alembic
+# Apply current migrations
+poetry run alembic upgrade head
 
-# Generate migration
-alembic revision --autogenerate -m "Initial schema"
+# Roll back everything (use with care)
+poetry run alembic downgrade base
 
-# Apply migration
-alembic upgrade head
+# Create new migration from models
+poetry run alembic revision --autogenerate -m "short message"
+
+# Inspect state (optional sanity)
+poetry run alembic history
+poetry run alembic heads
 ```
 
 ### Adding New Columns
 
 ```python
-# alembic/versions/xxx_add_column.py
+# backend/alembic/versions/xxx_add_column.py
 def upgrade():
-    op.add_column('garments', 
-        sa.Column('favorite', sa.Boolean(), default=False))
+    op.add_column("garments", sa.Column("favorite", sa.Boolean(), nullable=True, server_default="false"))
 
 def downgrade():
-    op.drop_column('garments', 'favorite')
+    op.drop_column("garments", "favorite")
 ```
 
