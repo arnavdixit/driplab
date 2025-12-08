@@ -42,3 +42,11 @@ Create a `.env.local` file in the frontend directory:
 ```
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
+
+## Manual test checklist (FE-002 upload)
+
+- Drag a JPEG/PNG/WebP into the drop zone and see it listed.
+- Click the drop zone to browse and select multiple images.
+- Invalid type or >10MB file shows an error notice.
+- Preview grid shows thumbnails and allows removal before upload.
+- Start upload shows progress and ends with success or error per file.
