@@ -84,8 +84,13 @@ def client(db_session: Session, temp_upload_dir: Path) -> Generator[TestClient, 
 
 
 def test_upload_success(client: TestClient, db_session: Session, temp_upload_dir: Path) -> None:
+    tiny_png = (
+        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01"
+        b"\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\xdacd\xf8"
+        b"\xff\xff?\x00\x05\xfe\x02\xfeA^\xe2&\x00\x00\x00\x00IEND\xaeB`\x82"
+    )
     files = {
-        "file": ("test.png", b"\x89PNG\r\n\x1a\n", "image/png"),
+        "file": ("test.png", tiny_png, "image/png"),
     }
 
     response = client.post("/api/v1/wardrobe/upload", files=files)
@@ -94,9 +99,15 @@ def test_upload_success(client: TestClient, db_session: Session, temp_upload_dir
     body = response.json()
     assert body["status"] == "pending"
     assert "id" in body
+    assert body["original_image_path"].startswith("/media/")
+    assert body["thumbnail_path"] is not None
+    assert body["thumbnail_path"].startswith("/media/")
     assert db_session.query(Garment).count() == 1
-    saved_files = list(temp_upload_dir.glob("*"))
-    assert len(saved_files) == 1
+    uploads = list(temp_upload_dir.glob("*"))
+    thumbs_dir = temp_upload_dir.parent / "thumbnails"
+    thumbs = list(thumbs_dir.glob("*"))
+    assert len(uploads) == 1
+    assert len(thumbs) == 1
 
 
 def test_upload_rejects_invalid_type(client: TestClient, db_session: Session) -> None:
