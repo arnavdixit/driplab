@@ -23,6 +23,21 @@ router = APIRouter(prefix="/wardrobe", tags=["wardrobe"])
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
+MEDIA_PREFIX = "/media/"
+MEDIA_ROOT = Path(settings.UPLOAD_DIR).parent
+
+
+def _to_media_url(path: Optional[str]) -> Optional[str]:
+    """Convert stored path to a web-served /media URL."""
+    if not path:
+        return None
+    candidate = Path(path)
+    try:
+        rel = candidate.relative_to(MEDIA_ROOT) if candidate.is_absolute() else candidate
+    except ValueError:
+        # Path outside media root; return as-is
+        return str(candidate)
+    return f"{MEDIA_PREFIX}{rel.as_posix()}"
 
 
 def _serialize_garment(garment: Garment) -> GarmentResponse:
@@ -46,9 +61,9 @@ def _serialize_garment(garment: Garment) -> GarmentResponse:
     return GarmentResponse(
         id=garment.id,
         status=garment.status,
-        original_image_path=garment.original_image_path,
-        processed_image_path=garment.processed_image_path,
-        thumbnail_path=garment.thumbnail_path,
+        original_image_path=_to_media_url(garment.original_image_path),
+        processed_image_path=_to_media_url(garment.processed_image_path),
+        thumbnail_path=_to_media_url(garment.thumbnail_path),
         error_message=garment.error_message,
         custom_name=garment.custom_name,
         custom_notes=garment.custom_notes,
