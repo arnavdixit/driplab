@@ -117,9 +117,9 @@ def test_list_supports_pagination_and_status_filter(client: TestClient, db_sessi
     user = seed_user(db_session)
     now = datetime.utcnow()
     garments = [
-        Garment(user_id=user.id, original_image_path="uploads/a.png", status="pending", created_at=now - timedelta(minutes=2)),
-        Garment(user_id=user.id, original_image_path="uploads/b.png", status="ready", created_at=now - timedelta(minutes=1)),
-        Garment(user_id=user.id, original_image_path="uploads/c.png", status="ready", created_at=now),
+        Garment(user_id=user.id, original_image_path="uploads/a.png", thumbnail_path="thumbnails/a.png", status="pending", created_at=now - timedelta(minutes=2)),
+        Garment(user_id=user.id, original_image_path="uploads/b.png", thumbnail_path="thumbnails/b.png", status="ready", created_at=now - timedelta(minutes=1)),
+        Garment(user_id=user.id, original_image_path="uploads/c.png", thumbnail_path="thumbnails/c.png", status="ready", created_at=now),
     ]
     db_session.add_all(garments)
     db_session.commit()
@@ -135,7 +135,9 @@ def test_list_supports_pagination_and_status_filter(client: TestClient, db_sessi
     statuses = [item["status"] for item in body["items"]]
     assert all(status == "ready" for status in statuses)
     urls = [item["original_image_path"] for item in body["items"]]
+    thumb_urls = [item["thumbnail_path"] for item in body["items"]]
     assert all(url.startswith("/media/") for url in urls)
+    assert all(url.startswith("/media/") for url in thumb_urls if url)
 
 
 def test_get_returns_single_garment(client: TestClient, db_session: Session) -> None:
@@ -143,6 +145,7 @@ def test_get_returns_single_garment(client: TestClient, db_session: Session) -> 
     garment = Garment(
         user_id=user.id,
         original_image_path="uploads/item.png",
+        thumbnail_path="thumbnails/item.png",
         status="pending",
         custom_name="My Shirt",
         custom_notes="Notes",
@@ -160,6 +163,7 @@ def test_get_returns_single_garment(client: TestClient, db_session: Session) -> 
     assert body["custom_notes"] == "Notes"
     assert body["prediction"] is None
     assert body["original_image_path"].startswith("/media/")
+    assert body["thumbnail_path"].startswith("/media/")
 
 
 def test_patch_updates_allowed_fields(client: TestClient, db_session: Session) -> None:

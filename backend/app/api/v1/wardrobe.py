@@ -1,11 +1,13 @@
 """
 Wardrobe-related API endpoints.
 """
+import io
 import uuid
 from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from PIL import Image, UnidentifiedImageError
 from sqlalchemy.orm import Session, joinedload
 
 from backend.app.api.deps import get_current_user
@@ -118,16 +120,30 @@ async def upload_garment_image(
             detail="File too large. Max size is 10MB.",
         )
 
-    upload_dir = Path(settings.UPLOAD_DIR)
-    upload_dir.mkdir(parents=True, exist_ok=True)
+    # Save original
+    original_relative = storage.save(data, directory="uploads", filename=file.filename)
 
-    filename = f"{uuid.uuid4()}{extension}"
-    file_path = upload_dir / filename
-    file_path.write_bytes(data)
+    # Generate thumbnail
+    try:
+        image = Image.open(io.BytesIO(data))
+    except UnidentifiedImageError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid image file."
+        ) from exc
+
+    thumb = image.copy()
+    thumb.thumbnail((320, 320))
+    thumb_buffer = io.BytesIO()
+    save_format = image.format or "JPEG"
+    thumb.save(thumb_buffer, format=save_format)
+    thumbnail_relative = storage.save(
+        thumb_buffer.getvalue(), directory="thumbnails", filename=file.filename
+    )
 
     garment = Garment(
         user_id=current_user.id,
-        original_image_path=str(file_path),
+        original_image_path=str(original_relative),
+        thumbnail_path=str(thumbnail_relative),
         status="pending",
     )
     db.add(garment)

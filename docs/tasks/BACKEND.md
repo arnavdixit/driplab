@@ -137,7 +137,7 @@ Create endpoint to upload garment images. Saves file to storage, creates databas
 **Phase:** 1 | **Priority:** P0 | **Dependencies:** BE-004
 
 **Description:**
-Create a storage service abstraction for saving/retrieving images. Supports local filesystem now, can swap to S3 later.
+Create a storage service abstraction for saving/retrieving images. Supports local filesystem now, can swap to S3 later. **Must also serve files via HTTP.**
 
 **Files to Create:**
 - `backend/app/services/storage.py` - Storage service
@@ -149,18 +149,40 @@ Create a storage service abstraction for saving/retrieving images. Supports loca
 - Generate unique paths to avoid collisions
 - Support for different directories (uploads, processed, thumbnails)
 
+**Static File Serving (CRITICAL):**
+- Mount `data/runtime/` as static files in FastAPI `main.py`:
+  ```python
+  from fastapi.staticfiles import StaticFiles
+  app.mount("/media", StaticFiles(directory="data/runtime"), name="media")
+  ```
+- `get_url(path)` returns web URL: `"/media/uploads/abc.jpg"` (not filesystem path)
+- Without this, frontend cannot display images
+
+**Thumbnail Generation:**
+- On upload, generate thumbnail (max 300x300) and save to `thumbnails/`
+- Use Pillow: `image.thumbnail((300, 300))`
+- If thumbnail generation fails, log warning but don't fail upload
+- Store thumbnail_path in database
+
+**Fallback for Missing Thumbnails:**
+- If `thumbnail_path` is None/empty, `get_url()` should return URL for `original_image_path`
+- This ensures frontend always has an image to display
+
 **Acceptance Criteria:**
 - [ ] Can save uploaded file
-- [ ] Can retrieve file URL
+- [ ] Can retrieve **web-accessible** file URL (not filesystem path)
 - [ ] Can delete file
 - [ ] Files saved to correct directories
 - [ ] No filename collisions
+- [ ] **Static files served at `/media/*`**
+- [ ] **Thumbnails generated on upload**
+- [ ] **Fallback to original when no thumbnail**
 
 ---
 
 ## BE-006: Wardrobe CRUD Endpoints
 
-**Phase:** 1 | **Priority:** P0 | **Dependencies:** BE-002, BE-004
+**Phase:** 1 | **Priority:** P0 | **Dependencies:** BE-002, BE-004, BE-005
 
 **Description:**
 Create REST endpoints for wardrobe management: list, get, update, delete garments.
@@ -182,12 +204,30 @@ Create REST endpoints for wardrobe management: list, get, update, delete garment
 - Delete should remove files from storage too
 - Return proper error codes (404, 400, etc.)
 
+**Image URLs in Response (CRITICAL):**
+- Use `storage.get_url()` to convert paths to web URLs
+- Response must include: `image_url`, `thumbnail_url`
+- Apply fallback: if `thumbnail_path` is empty, use `original_image_path`
+- Frontend relies on these being valid URLs for `<img src="...">`
+
+**Example Response:**
+```json
+{
+  "id": "abc-123",
+  "image_url": "/media/uploads/abc-123.jpg",
+  "thumbnail_url": "/media/thumbnails/abc-123.jpg",
+  "status": "ready"
+}
+```
+
 **Acceptance Criteria:**
 - [ ] List returns paginated garments
 - [ ] Can filter by status and category
 - [ ] Get returns garment with predictions
 - [ ] Update modifies only allowed fields
 - [ ] Delete removes DB record and files
+- [ ] **Image URLs are web-accessible (start with /media/)**
+- [ ] **Frontend can display images without broken links**
 
 ---
 

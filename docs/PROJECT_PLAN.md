@@ -53,8 +53,8 @@ See `docs/ARCHITECTURE.md` for detailed folder structure rationale.
 | BE-002 | PostgreSQL schema + SQLAlchemy models | You | P0 | BE-001 |
 | BE-003 | Alembic migrations setup | You | P0 | BE-002 |
 | BE-004 | Image upload endpoint | You | P0 | BE-002 |
-| BE-005 | Local image storage service | You | P0 | BE-004 |
-| BE-006 | Wardrobe CRUD endpoints | You | P0 | BE-002 |
+| BE-005 | Image storage + static serving + thumbnails | You | P0 | BE-004 |
+| BE-006 | Wardrobe CRUD endpoints | You | P0 | BE-002, BE-005 |
 | INF-001 | Docker Compose (Postgres, Redis) | You | P0 | - |
 | INF-002 | Environment config (.env) | You | P0 | BE-001 |
 | FE-001 | Next.js project setup | Cursor | P0 | - |
@@ -163,7 +163,7 @@ BE-001  FastAPI setup                    Phase 1  P0
 BE-002  PostgreSQL + SQLAlchemy          Phase 1  P0
 BE-003  Alembic migrations               Phase 1  P0
 BE-004  Image upload endpoint            Phase 1  P0
-BE-005  Image storage service            Phase 1  P0
+BE-005  Storage + static files + thumbs  Phase 1  P0
 BE-006  Wardrobe CRUD                    Phase 1  P0
 BE-007  Background jobs (RQ)             Phase 2  P0
 BE-008  ML processing worker             Phase 2  P0
@@ -255,6 +255,24 @@ INF-004  Model storage                   Phase 5  P1
 
 ---
 
+## Planning Lessons Learned
+
+Issues discovered during implementation that were missed in initial planning:
+
+| Gap | Problem | Fix |
+|-----|---------|-----|
+| "Optional" without fallback | Thumbnails marked "optional" but no fallback specified | Always specify fallback behavior for optional features |
+| Missing integration details | Backend returns filesystem paths, frontend needs URLs | Trace data flow end-to-end: DB → API → Frontend |
+| Implicit dependencies | BE-006 needs BE-005 for URL generation | Make all dependencies explicit, even obvious ones |
+| Frontend-backend contract unclear | Response schema didn't specify URL format | Define API contracts with concrete examples |
+
+**Rule:** For any "optional" feature, document:
+1. What happens when it's missing
+2. How other components handle the missing case
+3. Fallback behavior
+
+---
+
 ## Risks & Mitigations
 
 | Risk | Likelihood | Impact | Mitigation |
@@ -303,7 +321,7 @@ Execute tasks in this order to respect dependencies and maintain momentum.
 | 5 | BE-003 | Alembic migrations | Apply schema |
 | 6 | FE-001 | Next.js project setup | Can parallel with 4-5 |
 | 7 | BE-004 | Image upload endpoint | Upload API |
-| 8 | BE-005 | Local storage service | File handling |
+| 8 | BE-005 | Storage + static files + thumbnails | Mount /media, generate thumbs |
 | 9 | FE-002 | Upload interface | Upload UI |
 | 10 | BE-006 | Wardrobe CRUD endpoints | Gallery API |
 | 11 | FE-003 | Wardrobe gallery view | Gallery UI |
@@ -402,7 +420,7 @@ Copy-paste friendly list of first 20 tasks:
 5.  BE-003   Alembic migrations
 6.  FE-001   Next.js setup
 7.  BE-004   Upload endpoint
-8.  BE-005   Storage service
+8.  BE-005   Storage + /media mount + thumbnails
 9.  FE-002   Upload UI
 10. BE-006   Wardrobe CRUD
 11. FE-003   Gallery UI
