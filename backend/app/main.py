@@ -1,12 +1,9 @@
 """
 FastAPI application entry point.
 """
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from fastapi.staticfiles import StaticFiles
 
 from backend.app.api.v1 import api_router
 from backend.app.core.config import settings
@@ -27,11 +24,6 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-# Static media mount (serves uploads/processed from runtime root)
-media_root = Path(settings.UPLOAD_DIR).parent
-media_root.mkdir(parents=True, exist_ok=True)
-app.mount("/media", StaticFiles(directory=str(media_root)), name="media")
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
