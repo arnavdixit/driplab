@@ -286,3 +286,134 @@ INF-004  Model storage                   Phase 5  P1
 
 **End of Week 1 Goal:** Upload photos, see them in gallery
 
+---
+
+## Recommended Task Order
+
+Execute tasks in this order to respect dependencies and maintain momentum.
+
+### Phase 1: Foundation (Tasks 1-11)
+
+| # | Task | Description | Notes |
+|---|------|-------------|-------|
+| 1 | INF-001 | Docker Compose setup | Start DB/Redis first |
+| 2 | BE-001 | FastAPI project setup | Backend foundation |
+| 3 | INF-002 | Environment config | Configure .env |
+| 4 | BE-002 | PostgreSQL schema + models | Database models |
+| 5 | BE-003 | Alembic migrations | Apply schema |
+| 6 | FE-001 | Next.js project setup | Can parallel with 4-5 |
+| 7 | BE-004 | Image upload endpoint | Upload API |
+| 8 | BE-005 | Local storage service | File handling |
+| 9 | FE-002 | Upload interface | Upload UI |
+| 10 | BE-006 | Wardrobe CRUD endpoints | Gallery API |
+| 11 | FE-003 | Wardrobe gallery view | Gallery UI |
+
+**Checkpoint:** Can upload photos and view in gallery
+
+### Phase 2: ML Pipeline (Tasks 12-26)
+
+| # | Task | Description | Notes |
+|---|------|-------------|-------|
+| 12 | ML-001 | Image preprocessing | ML foundation |
+| 13 | ML-004 | Download DeepFashion2 | Start download early |
+| 14 | ML-003 | YOLOv8 detection | Detection pipeline |
+| 15 | ML-006 | EfficientNet classifier | Classification setup |
+| 16 | ML-008 | Color extraction | Rule-based colors |
+| 17 | ML-010 | CLIP embedding pipeline | Embeddings |
+| 18 | ML-011 | ChromaDB integration | Vector storage |
+| 19 | BE-007 | Background job system | Redis + RQ |
+| 20 | BE-008 | ML processing worker | Connect ML to backend |
+| 21 | ML-002 | Image quality checker | Optional validation |
+| 22 | FE-004 | Garment detail view | Detail UI |
+| 23 | FE-005 | Processing status | Status indicators |
+| 24 | ML-005 | Fine-tune YOLOv8 | P1 - Can defer |
+| 25 | ML-007 | Train classifier | P1 - Can defer |
+| 26 | ML-009 | Attribute tagger | P1 - Can defer |
+
+**Checkpoint:** Photos auto-processed with category, color, embeddings
+
+### Phase 3: Recommendations (Tasks 27-39)
+
+| # | Task | Description | Notes |
+|---|------|-------------|-------|
+| 27 | ML-012 | Outfit slot logic | Define outfit structure |
+| 28 | ML-013 | Candidate generator | Generate outfit combos |
+| 29 | ML-014 | Rule-based scorer | Compatibility scoring |
+| 30 | ML-015 | Color harmony rules | Color matching |
+| 31 | ML-016 | Formality matching | Style matching |
+| 32 | BE-009 | Recommendation endpoint | Recommendation API |
+| 33 | BE-010 | Constraint parsing | Parse filters |
+| 34 | FE-006 | Outfit recommendation cards | Outfit UI |
+| 35 | BE-011 | Feedback endpoint | Like/dislike API |
+| 36 | FE-007 | Like/dislike buttons | Feedback UI |
+| 37 | FE-008 | Outfit detail modal | Outfit details |
+| 38 | ML-017 | Download Polyvore | P1 - For learned model |
+| 39 | ML-018 | Train compatibility model | P2 - Can defer |
+
+**Checkpoint:** Can request and see outfit recommendations
+
+### Phase 4: Chat Integration (Tasks 40-51)
+
+| # | Task | Description | Notes |
+|---|------|-------------|-------|
+| 40 | BE-012 | OpenAI client setup | LLM foundation |
+| 41 | BE-014 | Context builder | Build chat context |
+| 42 | BE-013 | Constraint extraction | LLM extracts constraints |
+| 43 | BE-015 | Constraint merger | Merge session state |
+| 44 | BE-016 | Chat orchestrator | Main chat logic |
+| 45 | BE-017 | Response generator | LLM generates response |
+| 46 | BE-018 | Chat endpoint | Chat API |
+| 47 | BE-020 | Session state management | Track conversation |
+| 48 | BE-019 | Conversation persistence | Save to DB |
+| 49 | FE-009 | Chat interface | Chat UI |
+| 50 | FE-010 | Streaming responses | Stream display |
+| 51 | FE-011 | Outfit cards in chat | Inline outfits |
+
+**Checkpoint:** Can chat naturally and get outfit recommendations
+
+### Phase 5: Polish & Deploy (Tasks 52-63)
+
+| # | Task | Description | Notes |
+|---|------|-------------|-------|
+| 52 | BE-021 | User preferences endpoint | Preferences API |
+| 53 | FE-012 | Preferences/settings page | Settings UI |
+| 54 | ML-019 | Feedback-based re-ranking | Personalization |
+| 55 | FE-014 | Mobile responsive design | Mobile UI |
+| 56 | FE-013 | Outfit history view | History UI |
+| 57 | INF-003 | Production deployment | Deploy app |
+| 58 | INF-004 | Model artifact storage | Model versioning |
+| 59 | ML-020 | User preference learning | P2 - Advanced |
+| 60 | ML-021 | Fine-tune CLIP | P2 - Advanced |
+| 61 | BE-022 | Weather API integration | P2 - Nice to have |
+
+**Checkpoint:** Polished app ready for real use
+
+---
+
+## Quick Start Sequence
+
+Copy-paste friendly list of first 20 tasks:
+
+```
+1.  INF-001  Docker Compose
+2.  BE-001   FastAPI setup
+3.  INF-002  Environment config
+4.  BE-002   Database models
+5.  BE-003   Alembic migrations
+6.  FE-001   Next.js setup
+7.  BE-004   Upload endpoint
+8.  BE-005   Storage service
+9.  FE-002   Upload UI
+10. BE-006   Wardrobe CRUD
+11. FE-003   Gallery UI
+12. ML-001   Image preprocessing
+13. ML-004   Download DeepFashion2
+14. ML-003   YOLOv8 detection
+15. ML-006   EfficientNet setup
+16. ML-008   Color extraction
+17. ML-010   CLIP embeddings
+18. ML-011   ChromaDB integration
+19. BE-007   Background jobs
+20. BE-008   ML worker
+```
+
