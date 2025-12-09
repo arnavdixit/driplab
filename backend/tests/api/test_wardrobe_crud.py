@@ -117,9 +117,9 @@ def test_list_supports_pagination_and_status_filter(client: TestClient, db_sessi
     user = seed_user(db_session)
     now = datetime.utcnow()
     garments = [
-        Garment(user_id=user.id, original_image_path="a.png", status="pending", created_at=now - timedelta(minutes=2)),
-        Garment(user_id=user.id, original_image_path="b.png", status="ready", created_at=now - timedelta(minutes=1)),
-        Garment(user_id=user.id, original_image_path="c.png", status="ready", created_at=now),
+        Garment(user_id=user.id, original_image_path="uploads/a.png", status="pending", created_at=now - timedelta(minutes=2)),
+        Garment(user_id=user.id, original_image_path="uploads/b.png", status="ready", created_at=now - timedelta(minutes=1)),
+        Garment(user_id=user.id, original_image_path="uploads/c.png", status="ready", created_at=now),
     ]
     db_session.add_all(garments)
     db_session.commit()
@@ -134,13 +134,15 @@ def test_list_supports_pagination_and_status_filter(client: TestClient, db_sessi
     assert len(body["items"]) == 2
     statuses = [item["status"] for item in body["items"]]
     assert all(status == "ready" for status in statuses)
+    urls = [item["original_image_path"] for item in body["items"]]
+    assert all(url.startswith("/media/") for url in urls)
 
 
 def test_get_returns_single_garment(client: TestClient, db_session: Session) -> None:
     user = seed_user(db_session)
     garment = Garment(
         user_id=user.id,
-        original_image_path="item.png",
+        original_image_path="uploads/item.png",
         status="pending",
         custom_name="My Shirt",
         custom_notes="Notes",
@@ -157,6 +159,7 @@ def test_get_returns_single_garment(client: TestClient, db_session: Session) -> 
     assert body["custom_name"] == "My Shirt"
     assert body["custom_notes"] == "Notes"
     assert body["prediction"] is None
+    assert body["original_image_path"].startswith("/media/")
 
 
 def test_patch_updates_allowed_fields(client: TestClient, db_session: Session) -> None:
