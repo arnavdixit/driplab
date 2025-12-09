@@ -25,7 +25,7 @@ ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB
 
 
-def _serialize_garment(garment: Garment) -> GarmentResponse:
+def _serialize_garment(garment: Garment, storage: Storage | None = None) -> GarmentResponse:
     """Shape a garment ORM object into the API response without triggering lazy loads."""
     prediction_obj = garment.__dict__.get("predictions")
     prediction = None
@@ -43,12 +43,19 @@ def _serialize_garment(garment: Garment) -> GarmentResponse:
             "embedding_id": prediction_obj.embedding_id,
         }
 
+    def to_url(path: Optional[str]) -> Optional[str]:
+        if not path:
+            return None
+        if storage:
+            return storage.get_url(path)
+        return path
+
     return GarmentResponse(
         id=garment.id,
         status=garment.status,
-        original_image_path=garment.original_image_path,
-        processed_image_path=garment.processed_image_path,
-        thumbnail_path=garment.thumbnail_path,
+        original_image_path=to_url(garment.original_image_path),
+        processed_image_path=to_url(garment.processed_image_path),
+        thumbnail_path=to_url(garment.thumbnail_path),
         error_message=garment.error_message,
         custom_name=garment.custom_name,
         custom_notes=garment.custom_notes,
@@ -86,6 +93,7 @@ async def upload_garment_image(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    storage: Storage = Depends(get_storage),
 ) -> GarmentResponse:
     """
     Upload a garment image, save it locally, and create a pending garment record.
@@ -126,7 +134,7 @@ async def upload_garment_image(
     db.commit()
     db.refresh(garment)
 
-    return _serialize_garment(garment)
+    return _serialize_garment(garment, storage=storage)
 
 
 @router.get(
@@ -138,6 +146,7 @@ def list_garments(
     filters: WardrobeListFilters = Depends(),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    storage: Storage = Depends(get_storage),
 ) -> WardrobeListResponse:
     query = db.query(Garment).filter(Garment.user_id == current_user.id)
 
@@ -168,7 +177,7 @@ def list_garments(
         .all()
     )
 
-    items = [_serialize_garment(g) for g in garments]
+    items = [_serialize_garment(g, storage=storage) for g in garments]
     return WardrobeListResponse(items=items, total=total, limit=filters.limit, offset=filters.offset)
 
 
@@ -181,6 +190,7 @@ def get_garment(
     garment_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    storage: Storage = Depends(get_storage),
 ) -> GarmentResponse:
     query = db.query(Garment).filter(Garment.id == garment_id, Garment.user_id == current_user.id)
     if db.bind and db.bind.dialect.name != "sqlite":
@@ -190,7 +200,7 @@ def get_garment(
     if not garment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Garment not found")
 
-    return _serialize_garment(garment)
+    return _serialize_garment(garment, storage=storage)
 
 
 @router.patch(
@@ -203,6 +213,7 @@ def update_garment(
     payload: GarmentUpdateRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
+    storage: Storage = Depends(get_storage),
 ) -> GarmentResponse:
     garment = (
         db.query(Garment)
@@ -223,7 +234,7 @@ def update_garment(
     db.commit()
     db.refresh(garment)
 
-    return _serialize_garment(garment)
+    return _serialize_garment(garment, storage=storage)
 
 
 @router.delete(

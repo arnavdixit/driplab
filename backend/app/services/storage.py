@@ -63,8 +63,15 @@ class LocalStorage(Storage):
         return str(relative_path)
 
     def get_url(self, path: str) -> str:
-        absolute_path = self._to_absolute(Path(path))
-        return f"file://{absolute_path}"
+        """
+        Return a web-accessible URL for a stored path.
+
+        For local storage we serve files via FastAPI StaticFiles at /media,
+        so we convert the stored relative path (e.g., uploads/abc.jpg) into
+        /media/uploads/abc.jpg.
+        """
+        relative = Path(path)
+        return f"/media/{relative.as_posix()}"
 
     def delete(self, path: str) -> None:
         absolute_path = self._to_absolute(Path(path))
